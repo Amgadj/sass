@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7e9;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://www.toptal.com/designers/subtlepatterns/patterns/plant.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        h1 {
+            color: #2c6d2e;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #2c6d2e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #255a24;
+        }
+
+        h2 {
+            color: #2c6d2e;
+            margin-top: 20px;
+        }
+
+        #output-image {
+            max-width: 100%;
+            max-height: 300px;
+            border: 2px solid #2c6d2e;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="image-upload" name="image" accept="image/jpeg">
+        <button type="button" onclick="uploadImage()">Upload</button>
+    </form>
+    <h2>Output Image</h2>
+    <img id="output-image" src="" alt="Output Image will be displayed here">
+
+    <script>
+        async function uploadImage() {
+            const form = document.getElementById('upload-form');
+            const formData = new FormData(form);
+            const imageInput = document.getElementById('image-upload');
+
+            if (!imageInput.files.length) {
+                alert('Please select an image to upload.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://34.125.5.208:5000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                const result = await response.json();
+                if (result.output_image) {
+                    document.getElementById('output-image').src = result.output_image;
+                } else {
+                    alert('No output image received from the server.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the image.');
+            }
+        }
+    </script>
+</body>
+</html>
